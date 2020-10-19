@@ -7,6 +7,12 @@ const port = 3001
 
 const Schema = mongoose.Schema;
 
+var AsyncLock = require('async-lock');
+var lock = new AsyncLock();
+
+const QUEUE_LOCK = "queue_lock";
+var queue = [];
+
 var mongoDB = 'mongodb://localhost/varbits'
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -30,7 +36,7 @@ var VarbitSchema = new Schema({
 
 var VarbitModel = mongoose.model('Varbit', VarbitSchema);
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '100mb'}));
 app.use(cors());
 app.get('/varbs', (req, res) => {
 
@@ -44,7 +50,8 @@ app.get('/varbs', (req, res) => {
 	});
 });
 
-app.get('/varbits', (req, res) => {
+app.get('/retrieveVarbits', (req, res) => {
+	// console.log('retrieveVarbits')
 	VarbitModel.find((err, varbits) => {
 		if (err)
 			return res.status(401).send({
@@ -59,66 +66,72 @@ app.get('/varbits', (req, res) => {
 
 			return d2.updates[d2.updates.length-1].tick - d1.updates[d1.updates.length-1].tick
 		});
-		return res.status(200).send(sortedVarbits);
+		return res.status(200).send({
+			data: sortedVarbits
+		});
 	});
+});
+
+// This queue thing is probably an anti-pattern tbh. Surely there's some message queue I could use instead
+app.get('/retrieveQueue', (req, res) => {
+	// console.log('retrieveQueue')
+	lock.acquire(QUEUE_LOCK, function(queue) {
+		return function(done) {
+		    // async work
+		    ret = [...queue];
+		    while(queue.length > 0)
+				queue.pop();
+		    err = null;
+		    done(err, ret);
+		}
+	}(queue), function(err, ret) {
+	    // lock released
+	    return res.status(200).send({
+			data: ret
+		});
+	}, {});
 });
 
 function createUpdate(res, session, varbitInstance, varbitUpdateInstance, updates) {
 	varbitInstance.updates.push(varbitUpdateInstance)
-
+	addToQueue(varbitInstance);
 	varbitInstance.save(function(err) {
 		if (err)
 		{
 			console.log('Failure to save: ' + err)
 		}
-		else
-			console.log('Saved')
-			// If all done, return
+		// If all done, return
 		if (updates.length == 0)
 			return res.status(200).send();
 		return updateOne(res, session, updates);
 	});
 }
 
-app.post('/update', (req, res) => {
-	// Record the varbit and the value
-	let index = parseInt(req.body.index);
-	let oldValue = parseInt(req.body.oldValue);
-	let newValue = parseInt(req.body.newValue);
-	let tick = parseInt(req.body.tick);
-	let session = parseInt(req.body.session);
-
-	var varbitUpdateInstance = new VarbitUpdateModel({
-		oldValue: oldValue,
-		newValue: newValue,
-		tick: tick,
-		session: session
-	})
-
-	// Check to see if the varb is in the db
-	VarbitModel.findOne({ index: index }, (err, varbitModel) => {
-	
-		if (err)
-			return res.status(401).send({
-				error: 'Failed to query Varbit: ' + err
-			});
-
-		// If not, create it
-		if (varbitModel == null) {
-
-			var varbitInstance = new VarbitModel({
-				index: index,
-				updates: []
-			});
-			return createUpdate(res, varbitInstance, varbitUpdateInstance);
+function addToQueue(varbitInstance) {
+	lock.acquire(QUEUE_LOCK, function(queue) {
+		return function(done) {
+		    // async work
+		    let pos = -1
+		    for(let i = 0; i < queue.length; i++)
+		    	if(queue[i].index == varbitInstance.index)
+		    	{
+		    		pos = i;
+		    		break;
+		    	}
+		   	if(pos != -1)
+		   		queue.splice(pos, 1);
+		    queue.push(varbitInstance)
+		    // console.log("Added to queue")
+		    // console.log("queue: " + queue)
+		    err = null;
+		    ret = null;
+		    done(err, ret);
 		}
-
-		// If it is, create the update and append it to the array
-		return createUpdate(res, varbitModel, varbitUpdateInstance);
-
-	});
-})
-
+	}(queue), function(err, ret) {
+	    // lock released
+	    // console.log('Lock released')
+	}, {});
+}
 
 function updateOne(res, session, updates) {
 
@@ -143,12 +156,12 @@ function updateOne(res, session, updates) {
 				index: update.index,
 				updates: []
 			});
-			console.log("Append to new: " + update.index)
+			// console.log("Append to new: " + update.index)
 			return createUpdate(res, session, varbitInstance, varbitUpdateInstance, updates.slice(1));
 		}
 		else {
 			// If it is, create the update and append it to the array
-			console.log("Append to existing: " + update.index)
+			// console.log("Append to existing: " + update.index)
 			return createUpdate(res, session, varbitModel, varbitUpdateInstance, updates.slice(1));
 		}
 	});

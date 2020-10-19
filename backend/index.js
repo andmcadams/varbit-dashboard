@@ -67,7 +67,7 @@ app.get('/retrieveVarbits', (req, res) => {
 			return d2.updates[d2.updates.length-1].tick - d1.updates[d1.updates.length-1].tick
 		});
 		return res.status(200).send({
-			data: sortedVarbits
+			arr: sortedVarbits
 		});
 	});
 });
@@ -87,7 +87,7 @@ app.get('/retrieveQueue', (req, res) => {
 	}(queue), function(err, ret) {
 	    // lock released
 	    return res.status(200).send({
-			data: ret
+			arr: ret
 		});
 	}, {});
 });

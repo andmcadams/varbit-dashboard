@@ -43,7 +43,7 @@ html, body, div#root, div.container, div.varbitScrollBox, div.timeline-container
 
 div.container {
   display: flex;
-  overflow: auto;
+  overflow: hidden;
 }
 
 div.varbitScrollBox {
@@ -79,6 +79,10 @@ div.timeline-container {
   overflow: auto;
 }
 
+div.timeline {
+  margin-top: 5px;
+}
+
 div.timeline-header {
   display: flex;
   flex-flow: row nowrap;
@@ -101,4 +105,25 @@ div.timeline-body-cell {
   border-width: 1px;
   border-style: solid;
   padding-left: 10px;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

@@ -37,13 +37,18 @@
   }
 }
 
+html, body, div#root, div.container, div.varbitScrollBox, div.timeline-container {
+  height: 100%;
+}
+
 div.container {
   display: flex;
+  overflow: auto;
 }
 
 div.varbitScrollBox {
-  flex: 0 0 20%;
-  overflow: auto;
+  flex: 0 0 10%;
+  overflow-y: scroll;
   border: 1px;
   border-color: black;
   border-style: solid;
@@ -69,6 +74,27 @@ li {
   list-style-type: none;
 }
 
-div.varbitTimeline {
-  flex: 1;
+div.timeline-container {
+  flex: 1 0 0;
+  overflow: auto;
+}
+
+div.timeline-header {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+}
+
+div.timeline-header-button-removevarbit {
+  margin-left: auto;
+}
+
+div.timeline-body {
+  display: flex;
+  overflow-x: scroll;
+  width: 100%;
+}
+
+div.timeline-body-cell {
+  flex: 0 0 10%;
 }

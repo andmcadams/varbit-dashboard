@@ -130,7 +130,7 @@ class VarbitDashboard extends Component {
     return (
       <div class="container">
       <VarbitList varbits={this.state.varbits} handleToggleVarbit={this.handleToggleVarbit} />
-      <VarbitTimeline selected={this.state.selected} varbits={this.state.varbitMap} />
+      <VarbitTimelineContainer selected={this.state.selected} varbits={this.state.varbitMap} />
       </div>
     )
   }
@@ -156,20 +156,108 @@ class VarbitList extends Component {
   }
 }
 
-class VarbitTimeline extends Component {
+class VarbitTimelineContainer extends Component {
   
   constructor(props) {
     super(props)
   }
 
   render() {
+    let ticks = {}
+    // Get a list of all ticks needed.
+    // Make it an object to avoid dupes
+    console.log(this.props.selected)
+    this.props.selected.forEach((selectedVarb) => {
+      let varb = this.props.varbits[selectedVarb];
+      if (varb.updates != null)
+        varb.updates.forEach((update) => {
+          ticks[update.tick] = 1;
+        })
+    })
+    ticks = Object.keys(ticks);
     return (
-      <div class='varbitTimeline'>
+      <div class='timeline-container'>
       {this.props.selected.map((varbitIndex) => {
         return (
-          <p class='timeline'>{varbitIndex}: {this.props.varbits[varbitIndex].updates[this.props.varbits[varbitIndex].updates.length-1].newValue}</p>
-        )
-      })}
+          <div class='timeline'>
+          <VarbitTimelineHeader varbit={this.props.varbits[varbitIndex]} />
+          <VarbitTimelineBody varbit={this.props.varbits[varbitIndex]} ticks={ticks}/>
+          </div>
+          )
+        })
+      }
+      </div>
+    )
+  }
+}
+
+class VarbitTimelineHeader extends Component {
+
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+
+    return (
+      <div class='timeline-header'>
+        <div class='timeline-header-name'>{this.props.varbit.name || 'Varbit ' + this.props.varbit.index}</div>
+        <div class='timeline-header-button-moreinfo'><button>More info</button></div>
+        <div class='timeline-header-button-addinfo'><button>Add info</button></div>
+        <div class='timeline-header-button-removevarbit'><button>X</button></div>
+      </div>
+    )
+  }
+}
+
+class VarbitTimelineBody extends Component {
+
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    let ticks = {};
+    this.props.varbit.updates.forEach((update, index) => {
+      if (ticks[update.tick] == null)
+        ticks[update.tick] = [update];
+      else
+        ticks[update.tick].push(update)
+    })
+    let lastGoodValue = null;
+    let cells = this.props.ticks.map((tick) => {
+      if (ticks[tick] != null)
+        lastGoodValue = ticks[tick][ticks[tick].length-1].newValue;
+      return <VarbitTimelineBodyCell varbit={this.props.varbit} tick={tick} updates={ticks[tick] || [{newValue: lastGoodValue}]} />
+    })
+    return (
+      <div class='timeline-body'>
+        {cells}
+      </div>
+    )
+  }
+}
+
+class VarbitTimelineBodyCell extends Component {
+
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    let lastIndex = this.props.updates.length-1;
+    let value = <div class='timeline-body-cell-value'>Value {this.props.updates[lastIndex].newValue || 'Unknown'}</div>
+    let oldvalue = null;
+    if (this.props.updates[lastIndex].oldValue != null)
+    {
+      oldvalue = <div class='timeline-body-cell-oldvalue'>Old value {this.props.updates[lastIndex].oldValue}</div>
+    }
+
+    return (
+      <div class='timeline-body-cell'>
+        {value}
+        {oldvalue}
+        <div class='timeline-body-cell-tick'>Tick {this.props.tick}</div>
       </div>
     )
   }

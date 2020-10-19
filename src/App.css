@@ -96,5 +96,9 @@ div.timeline-body {
 }
 
 div.timeline-body-cell {
-  flex: 0 0 10%;
+  flex: 0 0 150px;
+  border-color: gray;
+  border-width: 1px;
+  border-style: solid;
+  padding-left: 10px;
 }

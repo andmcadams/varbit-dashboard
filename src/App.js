@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import axios from 'axios';
+import { ScrollSync, ScrollSyncPane } from 'react-scroll-sync';
 
 
 function App() {
@@ -176,6 +177,7 @@ class VarbitTimelineContainer extends Component {
     })
     ticks = Object.keys(ticks);
     return (
+      <ScrollSync>
       <div class='timeline-container'>
       {this.props.selected.map((varbitIndex) => {
         return (
@@ -187,6 +189,7 @@ class VarbitTimelineContainer extends Component {
         })
       }
       </div>
+      </ScrollSync>
     )
   }
 }
@@ -231,9 +234,11 @@ class VarbitTimelineBody extends Component {
       return <VarbitTimelineBodyCell varbit={this.props.varbit} tick={tick} updates={ticks[tick] || [{newValue: lastGoodValue}]} />
     })
     return (
+      <ScrollSyncPane>
       <div class='timeline-body'>
         {cells}
       </div>
+      </ScrollSyncPane>
     )
   }
 }

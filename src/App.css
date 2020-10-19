@@ -36,3 +36,39 @@
     transform: rotate(360deg);
   }
 }
+
+div.container {
+  display: flex;
+}
+
+div.varbitScrollBox {
+  flex: 0 0 20%;
+  overflow: auto;
+  border: 1px;
+  border-color: black;
+  border-style: solid;
+}
+
+ul {
+  padding-left: 5%;
+}
+
+div.varbit-checkbox {
+  display: flex;
+}
+
+div.varbit-index {
+  flex: 0 0 30%;
+}
+
+div.varbit-name {
+  flex: 1;
+}
+
+li {
+  list-style-type: none;
+}
+
+div.varbitTimeline {
+  flex: 1;
+}

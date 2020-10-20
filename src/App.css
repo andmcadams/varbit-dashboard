@@ -101,10 +101,22 @@ div.timeline-body {
 
 div.timeline-body-cell {
   flex: 0 0 150px;
-  border-color: gray;
+  border-color: black;
   border-width: 1px;
   border-style: solid;
   padding-left: 10px;
+}
+
+div.timeline-body-cell-unknown {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+div.timeline-body-cell-unchanged {
+  background-color: gray;
+}
+
+div.timeline-body-cell-changed {
+  background-color: red;
 }
 
 /* width */

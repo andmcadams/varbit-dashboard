@@ -279,25 +279,22 @@ class VarbitTimelineBodyCell extends Component {
   }
 
   render() {
+    // Create a cell with the 
     let lastIndex = this.props.updates.length-1;
-    let newvalue = null;
-    let value = this.props.updates[lastIndex].newValue;
-    if (value != null)
-      newvalue = <div class='timeline-body-cell-value'>Value {value}</div>
-    else
-      newvalue = <div class='timeline-body-cell-value'>Value Unknown</div>
+    let newValue = this.props.updates[lastIndex].newValue;
+    let oldValue = this.props.updates[lastIndex].oldValue;
 
-    let oldvalue = null;
-    if (this.props.updates[lastIndex].oldValue != null)
-      oldvalue = <div class='timeline-body-cell-oldvalue'>Old value {this.props.updates[lastIndex].oldValue}</div>
+    let cellDiv = null;
 
-    return (
-      <div class='timeline-body-cell'>
-        {newvalue}
-        {oldvalue}
-        <div class='timeline-body-cell-tick'>Tick {this.props.tick}</div>
-      </div>
-    )
+    // If the varbit value is unknown, only add tick.
+    if (newValue == null && oldValue == null)
+      cellDiv = <div class='timeline-body-cell timeline-body-cell-unknown'>T: {this.props.tick}</div>
+    else if (newValue != null && oldValue == null)
+      cellDiv = <div class='timeline-body-cell timeline-body-cell-unchanged'><p>{newValue}</p><p>T: {this.props.tick}</p></div>
+    else if (newValue != null && oldValue != null)
+      cellDiv = <div class='timeline-body-cell timeline-body-cell-changed'><p>{oldValue} → {newValue}</p><p>T: {this.props.tick}</p></div>
+
+    return cellDiv
   }
 }
 

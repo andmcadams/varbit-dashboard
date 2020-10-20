@@ -174,7 +174,6 @@ app.post('/updateMany', (req, res) => {
 	let updates = req.body.info;
 
 	return updateOne(res, session, updates);
-
 });
 
 app.get('/', (req, res) => {

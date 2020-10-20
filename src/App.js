@@ -280,16 +280,20 @@ class VarbitTimelineBodyCell extends Component {
 
   render() {
     let lastIndex = this.props.updates.length-1;
-    let value = <div class='timeline-body-cell-value'>Value {this.props.updates[lastIndex].newValue || 'Unknown'}</div>
+    let newvalue = null;
+    let value = this.props.updates[lastIndex].newValue;
+    if (value != null)
+      newvalue = <div class='timeline-body-cell-value'>Value {value}</div>
+    else
+      newvalue = <div class='timeline-body-cell-value'>Value Unknown</div>
+
     let oldvalue = null;
     if (this.props.updates[lastIndex].oldValue != null)
-    {
       oldvalue = <div class='timeline-body-cell-oldvalue'>Old value {this.props.updates[lastIndex].oldValue}</div>
-    }
 
     return (
       <div class='timeline-body-cell'>
-        {value}
+        {newvalue}
         {oldvalue}
         <div class='timeline-body-cell-tick'>Tick {this.props.tick}</div>
       </div>

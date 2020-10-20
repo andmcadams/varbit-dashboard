@@ -37,12 +37,14 @@ class VarbitDashboard extends Component {
     this.state = {
       varbits: [],
       selected: [],
-      varbitMap: {}
+      varbitMap: {},
+      session: ''
     };
 
     this.pollVarbits = this.pollVarbits.bind(this);
     this.initVarbits = this.initVarbits.bind(this);
     this.handleToggleVarbit = this.handleToggleVarbit.bind(this);
+    this.handleSessionChange = this.handleSessionChange.bind(this);
   }
 
   componentDidMount() {
@@ -120,11 +122,18 @@ class VarbitDashboard extends Component {
     })
   }
 
+  handleSessionChange(e) {
+    console.log('New session string: ' + e.target.value)
+    this.setState({
+      session: e.target.value
+    })
+  }
+
   render() {
     return (
       <div class="container">
-      <VarbitList varbits={this.state.varbits} handleToggleVarbit={this.handleToggleVarbit} selected={this.state.selected} />
-      <VarbitTimelineContainer selected={this.state.selected} varbits={this.state.varbitMap} handleToggleVarbit={this.handleToggleVarbit} />
+      <VarbitList varbits={this.state.varbits} handleToggleVarbit={this.handleToggleVarbit} selected={this.state.selected} session={this.state.session} handleSessionChange={this.handleSessionChange} />
+      <VarbitTimelineContainer selected={this.state.selected} varbits={this.state.varbitMap} handleToggleVarbit={this.handleToggleVarbit} session={this.state.session} />
       </div>
     )
   }
@@ -138,6 +147,8 @@ class VarbitList extends Component {
 
   render() {
     return (
+      <div class='varbitScrollBoxContainer'>
+      <input type="text" value={this.props.session} onChange={this.props.handleSessionChange} />
       <div class='varbitScrollBox'>
       <ul>
       {this.props.varbits.map((varbit) => {
@@ -146,6 +157,7 @@ class VarbitList extends Component {
         return <VarbitCheckbox handleToggleVarbit={this.props.handleToggleVarbit} key={varbit.index} name={name} index={varbit.index} value={isSelected} />
       })}
       </ul>
+      </div>
       </div>
     )
   }
@@ -165,7 +177,8 @@ class VarbitTimelineContainer extends Component {
       let varb = this.props.varbits[selectedVarb];
       if (varb.updates != null)
         varb.updates.forEach((update) => {
-          ticks[update.tick] = 1;
+          if (update.session === this.props.session)
+            ticks[update.tick] = 1;
         })
     })
     ticks = Object.keys(ticks);
@@ -176,7 +189,7 @@ class VarbitTimelineContainer extends Component {
         return (
           <div class='timeline'>
           <VarbitTimelineHeader varbit={this.props.varbits[varbitIndex]} handleToggleVarbit={this.props.handleToggleVarbit} />
-          <VarbitTimelineBody varbit={this.props.varbits[varbitIndex]} ticks={ticks}/>
+          <VarbitTimelineBody varbit={this.props.varbits[varbitIndex]} ticks={ticks} session={this.props.session} />
           </div>
           )
         })
@@ -233,17 +246,21 @@ class VarbitTimelineBody extends Component {
 
   render() {
     let ticks = {};
+    // For each update, add the update to the right tick
     this.props.varbit.updates.forEach((update, index) => {
-      if (ticks[update.tick] == null)
-        ticks[update.tick] = [update];
-      else
-        ticks[update.tick].push(update)
+      if (update.session === this.props.session)
+      {
+        if (ticks[update.tick] == null)
+          ticks[update.tick] = [update];
+        else
+          ticks[update.tick].push(update)
+      }
     })
     let lastGoodValue = null;
     let cells = this.props.ticks.map((tick) => {
       if (ticks[tick] != null)
         lastGoodValue = ticks[tick][ticks[tick].length-1].newValue;
-      return <VarbitTimelineBodyCell varbit={this.props.varbit} tick={tick} updates={ticks[tick] || [{newValue: lastGoodValue}]} />
+      return <VarbitTimelineBodyCell tick={tick} updates={ticks[tick] || [{newValue: lastGoodValue}]} />
     })
 
     // This definitely needs to be rewritten.

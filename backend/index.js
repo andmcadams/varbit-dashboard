@@ -23,7 +23,7 @@ var UpdateSchema = new Schema({
 	oldValue: { type: Number, required: [true, 'Missing oldValue'] },
 	newValue: { type: Number, required: [true, 'Missing newValue'] },
 	tick: { type: Number, required: [true, 'Missing tick'] },
-	session: { type: Number, required: [true, 'Missing session'] }
+	session: { type: String, required: [true, 'Missing session'] }
 })
 
 var VarbitUpdateModel = mongoose.model('VarbitUpdate', UpdateSchema);

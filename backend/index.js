@@ -49,22 +49,15 @@ app.get('/varbs', (req, res) => {
 
 app.get('/retrieveVarbits', (req, res) => {
 	// console.log('retrieveVarbits')
-	VarbitModel.find((err, varbits) => {
+	let requestedVarbits = req.body.requestedVarbits
+	VarbitModel.find( {index: {$in: requestedVarbits} }, (err, varbits) => {
 		if (err)
 			return res.status(401).send({
 				error: 'Failed to query'
 			});
 
-		let sortedVarbits = varbits.sort((d1, d2) => {
-			if (d1.updates.length == 0)
-				return 1;
-			else if (d2.updates.length == 0)
-				return -1;
-
-			return d2.updates[d2.updates.length-1].tick - d1.updates[d1.updates.length-1].tick
-		});
 		return res.status(200).send({
-			arr: sortedVarbits
+			arr: varbits
 		});
 	});
 });

@@ -21,7 +21,7 @@ class VarbitCheckbox extends Component {
     return (
       <li>
         <div class='varbit-checkbox'>
-        <input type="checkbox" checked={this.props.value} onClick={(e) => {
+        <input type="checkbox" checked={this.props.value} onChange={(e) => {
           this.props.handleToggleVarbit(this.props.index, e.target.checked)
         }} />
         <div class='varbit-index'>{this.props.index}</div><div class='varbit-name'>{this.props.name}</div>
@@ -148,7 +148,8 @@ class VarbitList extends Component {
   render() {
     return (
       <div class='varbitScrollBoxContainer'>
-      <input type="text" value={this.props.session} onChange={this.props.handleSessionChange} />
+      <label for="session-input">Session</label>
+      <input type="text" id="session-input" value={this.props.session} onChange={this.props.handleSessionChange} />
       <div class='varbitScrollBox'>
       <ul>
       {this.props.varbits.map((varbit) => {
@@ -236,9 +237,6 @@ class VarbitTimelineBody extends Component {
     console.log('updated')
     if (this.flag)
     {
-      console.log(this.refs.b.scrollLeft)
-      console.log(this.refs.b.scrollWidth)
-      console.log(this.refs.b.clientWidth)
       this.refs.b.scrollLeft = this.refs.b.scrollWidth;
       this.flag = false
     }

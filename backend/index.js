@@ -7,9 +7,6 @@ const port = 3001
 
 const Schema = mongoose.Schema;
 
-var AsyncLock = require('async-lock');
-var lock = new AsyncLock();
-
 const QUEUE_LOCK = "queue_lock";
 var queue = [];
 
@@ -20,18 +17,18 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 var UpdateSchema = new Schema({
-	oldValue: { type: Number, required: [true, 'Missing oldValue'] },
-	newValue: { type: Number, required: [true, 'Missing newValue'] },
-	tick: { type: Number, required: [true, 'Missing tick'] },
-	session: { type: String, required: [true, 'Missing session'] }
+	session: { type: String, required: [true, 'Missing session for varbit update'] },
+	index: { type: Number, required: [true, 'Missing index for varbit update'] },
+	tick: { type: Number, required: [true, 'Missing tick for varbit update'] },
+	subtick: { type: Number },
+	oldValue: { type: Number, required: [true, 'Missing oldValue for varbit update'] },
+	newValue: { type: Number, required: [true, 'Missing newValue for varbit update'] }
 })
 
 var VarbitUpdateModel = mongoose.model('VarbitUpdate', UpdateSchema);
 
 var VarbitSchema = new Schema({
-	index: Number,
-	name: String,
-	updates: [UpdateSchema]
+	index: { type: Number, required: [true, 'Missing index for varbit'] }
 });
 
 var VarbitModel = mongoose.model('Varbit', VarbitSchema);
@@ -72,101 +69,6 @@ app.get('/retrieveVarbits', (req, res) => {
 	});
 });
 
-// This queue thing is probably an anti-pattern tbh. Surely there's some message queue I could use instead
-app.get('/retrieveQueue', (req, res) => {
-	// console.log('retrieveQueue')
-	lock.acquire(QUEUE_LOCK, function(queue) {
-		return function(done) {
-		    // async work
-		    ret = [...queue];
-		    while(queue.length > 0)
-				queue.pop();
-		    err = null;
-		    done(err, ret);
-		}
-	}(queue), function(err, ret) {
-	    // lock released
-	    return res.status(200).send({
-			arr: ret
-		});
-	}, {});
-});
-
-function createUpdate(res, session, varbitInstance, varbitUpdateInstance, updates) {
-	varbitInstance.updates.push(varbitUpdateInstance)
-	addToQueue(varbitInstance);
-	varbitInstance.save(function(err) {
-		if (err)
-		{
-			console.log('Failure to save: ' + err)
-		}
-		// If all done, return
-		if (updates.length == 0)
-			return res.status(200).send();
-		return updateOne(res, session, updates);
-	});
-}
-
-function addToQueue(varbitInstance) {
-	lock.acquire(QUEUE_LOCK, function(queue) {
-		return function(done) {
-		    // async work
-		    let pos = -1
-		    for(let i = 0; i < queue.length; i++)
-		    	if(queue[i].index == varbitInstance.index)
-		    	{
-		    		pos = i;
-		    		break;
-		    	}
-		   	if(pos != -1)
-		   		queue.splice(pos, 1);
-		    queue.push(varbitInstance)
-		    // console.log("Added to queue")
-		    // console.log("queue: " + queue)
-		    err = null;
-		    ret = null;
-		    done(err, ret);
-		}
-	}(queue), function(err, ret) {
-	    // lock released
-	    // console.log('Lock released')
-	}, {});
-}
-
-function updateOne(res, session, updates) {
-
-	let update = updates[0];
-	var varbitUpdateInstance = new VarbitUpdateModel({
-		oldValue: update.oldValue,
-		newValue: update.newValue,
-		tick: update.tick,
-		session: session
-	});
-	// Append to varbit document
-	// Check to see if the varb is in the db
-	VarbitModel.findOne({ index: update.index }, (err, varbitModel) => {
-	
-		if (err)
-			failure = true
-
-		// If not, create it
-		if (varbitModel == null) {
-
-			var varbitInstance = new VarbitModel({
-				index: update.index,
-				updates: []
-			});
-			// console.log("Append to new: " + update.index)
-			return createUpdate(res, session, varbitInstance, varbitUpdateInstance, updates.slice(1));
-		}
-		else {
-			// If it is, create the update and append it to the array
-			// console.log("Append to existing: " + update.index)
-			return createUpdate(res, session, varbitModel, varbitUpdateInstance, updates.slice(1));
-		}
-	});
-}
-
 app.post('/updateMany', (req, res) => {
 	// session is a unique string identifying the current session.
 	// info is an array containing json representations of UpdateModels
@@ -175,6 +77,73 @@ app.post('/updateMany', (req, res) => {
 
 	return updateOne(res, session, updates);
 });
+
+function updateOne(res, session, updates) {
+
+	let update = updates[0];
+
+	// Append to varbit document
+	// Check to see if the varb is in the db
+	VarbitModel.findOne({ index: update.index }, (err, varbitModel) => {
+	
+		if (err)
+			failure = true
+
+		// If not, insert the varbit
+		if (varbitModel == null) {
+
+			var varbitInstance = new VarbitModel({
+				index: update.index
+			});
+
+			varbitInstance.save(function(err) {
+				if (err)
+				{
+					console.log('Failure to save: ' + err)
+					return status(400).send({
+						error: 'Failed to save varbit'
+					});
+				}
+
+				// console.log("Append to new: " + update.index)
+				return createUpdate(res, session, updates);
+			});
+		}
+		else {
+			// If it is, just create the update.
+			// console.log("Append to existing: " + update.index)
+			return createUpdate(res, session, updates);
+		}
+	});
+}
+
+function createUpdate(res, session, updates) {
+	var varbitUpdateInstance = new VarbitUpdateModel({
+		session: session,
+		index: update.index,
+		tick: update.tick,
+		subtick: update.subtick,
+		oldValue: update.oldValue,
+		newValue: update.newValue
+	});
+
+	varbitUpdateInstance.save(function(err) => {
+		if (err)
+			return res.status(400).send({
+				error: 'Failed to save varbit update'
+			});
+		// If saved, slice one off the front of the array.
+		// If there are no more updates, return with an OK response.
+		// Otherwise, add the next varbit update.
+
+		// Splice is much faster than slice(0) and shift
+		updates.splice(0, 1)
+		if (updates.length == 0)
+			return res.status(200).send();
+		return updateOne(res, session, updates);
+	});
+
+}
 
 app.get('/', (req, res) => {
 	return res.status(200).send({

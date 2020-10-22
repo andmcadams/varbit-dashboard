@@ -135,8 +135,8 @@ class VarbitDashboard extends Component {
   render() {
     return (
       <div class="container">
-      <VarbitList varbits={this.state.varbitMap} handleToggleVarbit={this.handleToggleVarbit} selected={this.state.selected} session={this.state.session} handleSessionChange={this.handleSessionChange} />
-      <VarbitTimelineContainer selected={this.state.selected} varbits={this.state.varbitMap} updates={this.state.varbitUpdatesMap} handleToggleVarbit={this.handleToggleVarbit} session={this.state.session} />
+      <VarbitList {...this.state} handleToggleVarbit={this.handleToggleVarbit} handleSessionChange={this.handleSessionChange} />
+      <VarbitTimelineContainer {...this.state} handleToggleVarbit={this.handleToggleVarbit} />
       </div>
     )
   }
@@ -155,7 +155,7 @@ class VarbitList extends Component {
       <input type="text" id="session-input" value={this.props.session} onChange={this.props.handleSessionChange} />
       <div class='varbitScrollBox'>
       <ul>
-      {Object.values(this.props.varbits).map((varbit) => {
+      {Object.values(this.props.varbitMap).map((varbit) => {
         let name = varbit.name || ''
         let isSelected = this.props.selected.includes(varbit.index)
         return <VarbitCheckbox handleToggleVarbit={this.props.handleToggleVarbit} key={varbit.index} name={name} index={varbit.index} value={isSelected} />
@@ -178,7 +178,7 @@ class VarbitTimelineContainer extends Component {
     // Get a list of all ticks needed.
     // Make it an object to avoid dupes
     this.props.selected.forEach((selectedVarb) => {
-      let updates = this.props.updates[selectedVarb];
+      let updates = this.props.varbitUpdatesMap[selectedVarb];
       updates.forEach((update) => {
         if (update.session === this.props.session)
           ticks[update.tick] = 1;
@@ -191,8 +191,8 @@ class VarbitTimelineContainer extends Component {
       {this.props.selected.map((varbitIndex) => {
         return (
           <div class='timeline'>
-          <VarbitTimelineHeader varbit={this.props.varbits[varbitIndex]} handleToggleVarbit={this.props.handleToggleVarbit} />
-          <VarbitTimelineBody updates={this.props.updates[varbitIndex]} ticks={ticks} session={this.props.session} />
+          <VarbitTimelineHeader varbit={this.props.varbitMap[varbitIndex]} handleToggleVarbit={this.props.handleToggleVarbit} />
+          <VarbitTimelineBody updates={this.props.varbitUpdatesMap[varbitIndex]} ticks={ticks} session={this.props.session} />
           </div>
           )
         })

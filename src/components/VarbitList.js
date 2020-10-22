@@ -3,6 +3,22 @@ import React, {Component} from 'react';
 class VarbitList extends Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      ignoredVarbits: []
+    }
+
+    this.handleRemoveFromIgnore = this.handleRemoveFromIgnore.bind(this);
+  }
+
+  handleRemoveFromIgnore(index) {
+    let newIgnoredVarbits = [...this.state.ignoredVarbits];
+    let i = newIgnoredVarbits.indexOf(index);
+    if (i != -1)
+      newIgnoredVarbits.splice(i, 1)
+    this.setState({
+      ignoredVarbits: newIgnoredVarbits
+    })
   }
 
   getOrderedVarbitMap(varbitUpdatesMap) {
@@ -31,9 +47,9 @@ class VarbitList extends Component {
       orderedVarbitList = Object.keys(this.props.varbitUpdatesMap)
 
     if (this.props.showVarbitSelect)
-      return <VarbitSelectList {...this.props} orderList={orderedVarbitList} />
+      return <VarbitSelectList {...this.props} ignoredVarbits={this.state.ignoredVarbits} orderList={orderedVarbitList} />
     else
-      return <VarbitIgnoreList {...this.props} orderList={orderedVarbitList} />
+      return <VarbitIgnoreList {...this.props} ignoredVarbits={this.state.ignoredVarbits} handleRemoveFromIgnore={this.handleRemoveFromIgnore} orderList={orderedVarbitList} />
   }
 }
 

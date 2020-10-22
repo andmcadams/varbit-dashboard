@@ -18,7 +18,6 @@ class VarbitDashboard extends Component {
       varbitMap: {},
       varbitUpdatesMap: {},
       selected: [],
-      ignoredVarbits: [],
       session: '',
       lastTick: -1
     };
@@ -28,7 +27,6 @@ class VarbitDashboard extends Component {
     this.handleToggleVarbit = this.handleToggleVarbit.bind(this);
     this.handleMoveVarbit = this.handleMoveVarbit.bind(this);
     this.handleSessionChange = this.handleSessionChange.bind(this);
-    this.handleRemoveFromIgnore = this.handleRemoveFromIgnore.bind(this);
   }
 
   componentDidMount() {
@@ -128,19 +126,8 @@ class VarbitDashboard extends Component {
       varbitMap: {},
       varbitUpdatesMap: {},
       selected: [],
-      ignoredVarbits: [],
       session: e.target.value,
       lastTick: -1
-    })
-  }
-
-  handleRemoveFromIgnore(index) {
-    let newIgnoredVarbits = [...this.state.ignoredVarbits];
-    let i = newIgnoredVarbits.indexOf(index);
-    if (i != -1)
-      newIgnoredVarbits.splice(i, 1)
-    this.setState({
-      ignoredVarbits: newIgnoredVarbits
     })
   }
 
@@ -149,7 +136,7 @@ class VarbitDashboard extends Component {
     console.log(this.state.varbitMap)
     return (
       <div class="container">
-      <VarbitListPanel {...this.state} handleToggleVarbit={this.handleToggleVarbit} handleSessionChange={this.handleSessionChange} handleRemoveFromIgnore={this.handleRemoveFromIgnore} />
+      <VarbitListPanel {...this.state} handleToggleVarbit={this.handleToggleVarbit} handleSessionChange={this.handleSessionChange} />
       <VarbitTimelineContainer {...this.state} handleToggleVarbit={this.handleToggleVarbit} handleMoveVarbit={this.handleMoveVarbit} />
       </div>
     )

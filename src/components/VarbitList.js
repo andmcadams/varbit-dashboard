@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import './VarbitList.css';
 
 class VarbitList extends Component {
   constructor(props) {

@@ -46,12 +46,15 @@ div.container {
   overflow: hidden;
 }
 
-div.varbitScrollBox {
+div.varbit-list-panel {
   flex: 0 0 10%;
-  overflow-y: scroll;
   border: 1px;
   border-color: black;
   border-style: solid;
+}
+
+div.varbitScrollBox {
+  overflow-y: scroll;
 }
 
 ul {

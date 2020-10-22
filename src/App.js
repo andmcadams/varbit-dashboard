@@ -128,7 +128,11 @@ class VarbitDashboard extends Component {
 
   handleSessionChange(e) {
     this.setState({
-      session: e.target.value
+      varbitMap: {},
+      varbitUpdatesMap: {},
+      selected: [],
+      session: e.target.value,
+      lastTick: -1
     })
   }
 
@@ -243,11 +247,11 @@ class VarbitTimelineBody extends Component {
     }
   }
 
-  render() {
+  getTicksWithUpdates(props) {
     let ticks = {};
     // For each update, add the update to the right tick
-    Object.values(this.props.updates).forEach((update, index) => {
-      if (update.session === this.props.session)
+    Object.values(props.updates).forEach((update, index) => {
+      if (update.session === props.session)
       {
         if (ticks[update.tick] == null)
           ticks[update.tick] = [update];
@@ -255,6 +259,12 @@ class VarbitTimelineBody extends Component {
           ticks[update.tick].push(update)
       }
     })
+
+    return ticks;
+  }
+
+  render() {
+    let ticks = this.getTicksWithUpdates(this.props);
     let lastGoodValue = null;
     let cells = this.props.ticks.map((tick) => {
       if (ticks[tick] != null)

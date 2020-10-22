@@ -35,27 +35,40 @@ var VarbitModel = mongoose.model('Varbit', VarbitSchema);
 
 app.use(bodyParser.json({limit: '100mb'}));
 app.use(cors());
-app.get('/varbs', (req, res) => {
+app.post('/retrieveVarbitUpdates', (req, res) => {
+	let session = req.body.session
+	let lastTick = req.body.lastTick
 
-	VarbitUpdateModel.find( (err, varbitUpdates) => {
+	if (session == null || lastTick == null)
+	{
+		return res.status(400).send({
+			error: 'session or lastTick value missing'
+		})
+	}
+
+	VarbitUpdateModel.find({ tick: {$gt: lastTick }, session: session}).sort({tick: 1, index: 1, subtick: 1}).exec( (err, varbitUpdates) => {
 		if (err)
 			return res.status(401).send({
 				error: 'Failed to query'
 			});
 
-		return res.status(200).send(varbitUpdates);
+		return res.status(200).send({
+			arr: varbitUpdates
+		});
 	});
 });
 
-app.get('/retrieveVarbits', (req, res) => {
+app.post('/retrieveVarbits', (req, res) => {
 	// console.log('retrieveVarbits')
 	let requestedVarbits = req.body.requestedVarbits
 	VarbitModel.find( {index: {$in: requestedVarbits} }, (err, varbits) => {
 		if (err)
+		{
+			console.log('Error in retrieveVarbits')
 			return res.status(401).send({
 				error: 'Failed to query'
 			});
-
+		}
 		return res.status(200).send({
 			arr: varbits
 		});
@@ -67,7 +80,13 @@ app.post('/updateMany', (req, res) => {
 	// info is an array containing json representations of UpdateModels
 	let session = req.body.session;
 	let updates = req.body.info;
-
+	if (session == null || updates == null)
+	{
+		console.log('Missing headers')
+		return res.status(400).send({
+			error: 'session or info missing'
+		})
+	}
 	return updateOne(res, session, updates);
 });
 
@@ -78,13 +97,13 @@ function updateOne(res, session, updates) {
 	// Append to varbit document
 	// Check to see if the varb is in the db
 	VarbitModel.findOne({ index: update.index }, (err, varbitModel) => {
-	
 		if (err)
-			failure = true
+			return res.status(401).send({
+				error: 'Failure to query varbit'
+			})
 
 		// If not, insert the varbit
 		if (varbitModel == null) {
-
 			var varbitInstance = new VarbitModel({
 				index: update.index
 			});
@@ -111,6 +130,7 @@ function updateOne(res, session, updates) {
 }
 
 function createUpdate(res, session, updates) {
+	let update = updates[0]
 	var varbitUpdateInstance = new VarbitUpdateModel({
 		session: session,
 		index: update.index,
@@ -120,7 +140,7 @@ function createUpdate(res, session, updates) {
 		newValue: update.newValue
 	});
 
-	varbitUpdateInstance.save(function(err) => {
+	varbitUpdateInstance.save(function(err) {
 		if (err)
 			return res.status(400).send({
 				error: 'Failed to save varbit update'

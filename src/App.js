@@ -35,67 +35,71 @@ class VarbitDashboard extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      varbits: [],
-      selected: [],
       varbitMap: {},
-      session: ''
+      varbitUpdatesMap: {},
+      selected: [],
+      session: '',
+      lastTick: -1
     };
 
-    this.pollVarbits = this.pollVarbits.bind(this);
-    this.initVarbits = this.initVarbits.bind(this);
+    this.checkVarbits = this.checkVarbits.bind(this);
+    this.checkVarbitUpdates = this.checkVarbitUpdates.bind(this);
     this.handleToggleVarbit = this.handleToggleVarbit.bind(this);
     this.handleSessionChange = this.handleSessionChange.bind(this);
   }
 
   componentDidMount() {
-    this.initVarbits()
+    setInterval(() => {
+      this.checkVarbitUpdates()
+    }, 600)
   }
 
-  initVarbits() {
-    axios.get('http://localhost:3001/retrieveVarbits')
-      .then((response) => {
-        let varbits = {}
-        response.data.arr.forEach(varbit => {
-          varbits[varbit.index] = varbit
-        })
-        this.setState({
-          varbits: response.data.arr,
-          varbitMap: varbits
-        });
-        setInterval( () => {
-          this.pollVarbits();
-        }, 600);
+  // Given a list of varbits, retrieve them from the backend.
+  checkVarbits(varbitsToCheck) {
+    axios.post('http://localhost:3001/retrieveVarbits', {
+      requestedVarbits: varbitsToCheck,
+    }).then((response) => {
+
+      let varbits = response.data.arr;
+      let newMap = Object.assign({}, this.state.varbitMap)
+
+      // Is it okay to mutate state and then assign it?
+      varbits.forEach(varbit => {
+        newMap[varbit.index] = varbit
+      });
+
+      this.setState({
+        varbitMap: newMap
       })
-      .catch((error) => {
-        console.log('Error: ' + error)
-        this.setState({
-          error: error
-        })
-      })
+    })
   }
 
-  pollVarbits() {
-    axios.get('http://localhost:3001/retrieveQueue')
-      .then((response) => {
-        let newMap = Object.assign({}, this.state.varbitMap)
-        let newState = response.data.arr
-
-        if (newState.length !== 0)
+  // Get any new varbit updates for the current session.
+  checkVarbitUpdates() {
+    axios.post('http://localhost:3001/retrieveVarbitUpdates', {
+      session: this.state.session,
+      lastTick: this.state.lastTick
+    }).then((response) => {
+        let updates = response.data.arr
+        if (updates != null && updates.length !== 0)
         {
-          console.log('update')
-          response.data.arr.forEach(element => {
-            newMap[element.index] = element;
+          let newLastTick = -1;
+          let varbitsToCheck = []
+          let newVarbitUpdatesMap = Object.assign({}, this.state.varbitUpdatesMap)
+          updates.forEach(update => {
+            if (newVarbitUpdatesMap[update.index] == null)
+            {
+              newVarbitUpdatesMap[update.index] = [];
+              varbitsToCheck.push(update.index)
+            }
+            newVarbitUpdatesMap[update.index].push(update);
+            if (update.tick > newLastTick)
+              newLastTick = update.tick
           })
-          let oldFilteredState = this.state.varbits.filter(function(value, index, arr){ 
-            for (let i = 0; i < response.data.arr.length; i++)
-              if(response.data.arr[i].index === value.index)
-                return false;
-            return true;
-          })
-          newState.push(...oldFilteredState)
+          this.checkVarbits(varbitsToCheck);
           this.setState({
-            varbits: newState,
-            varbitMap: newMap
+            varbitUpdatesMap: newVarbitUpdatesMap,
+            lastTick: newLastTick
           })
         }
       })
@@ -123,7 +127,6 @@ class VarbitDashboard extends Component {
   }
 
   handleSessionChange(e) {
-    console.log('New session string: ' + e.target.value)
     this.setState({
       session: e.target.value
     })
@@ -132,8 +135,8 @@ class VarbitDashboard extends Component {
   render() {
     return (
       <div class="container">
-      <VarbitList varbits={this.state.varbits} handleToggleVarbit={this.handleToggleVarbit} selected={this.state.selected} session={this.state.session} handleSessionChange={this.handleSessionChange} />
-      <VarbitTimelineContainer selected={this.state.selected} varbits={this.state.varbitMap} handleToggleVarbit={this.handleToggleVarbit} session={this.state.session} />
+      <VarbitList varbits={this.state.varbitMap} handleToggleVarbit={this.handleToggleVarbit} selected={this.state.selected} session={this.state.session} handleSessionChange={this.handleSessionChange} />
+      <VarbitTimelineContainer selected={this.state.selected} varbits={this.state.varbitMap} updates={this.state.varbitUpdatesMap} handleToggleVarbit={this.handleToggleVarbit} session={this.state.session} />
       </div>
     )
   }
@@ -152,7 +155,7 @@ class VarbitList extends Component {
       <input type="text" id="session-input" value={this.props.session} onChange={this.props.handleSessionChange} />
       <div class='varbitScrollBox'>
       <ul>
-      {this.props.varbits.map((varbit) => {
+      {Object.values(this.props.varbits).map((varbit) => {
         let name = varbit.name || ''
         let isSelected = this.props.selected.includes(varbit.index)
         return <VarbitCheckbox handleToggleVarbit={this.props.handleToggleVarbit} key={varbit.index} name={name} index={varbit.index} value={isSelected} />
@@ -175,12 +178,11 @@ class VarbitTimelineContainer extends Component {
     // Get a list of all ticks needed.
     // Make it an object to avoid dupes
     this.props.selected.forEach((selectedVarb) => {
-      let varb = this.props.varbits[selectedVarb];
-      if (varb.updates != null)
-        varb.updates.forEach((update) => {
-          if (update.session === this.props.session)
-            ticks[update.tick] = 1;
-        })
+      let updates = this.props.updates[selectedVarb];
+      updates.forEach((update) => {
+        if (update.session === this.props.session)
+          ticks[update.tick] = 1;
+      })
     })
     ticks = Object.keys(ticks);
     return (
@@ -190,7 +192,7 @@ class VarbitTimelineContainer extends Component {
         return (
           <div class='timeline'>
           <VarbitTimelineHeader varbit={this.props.varbits[varbitIndex]} handleToggleVarbit={this.props.handleToggleVarbit} />
-          <VarbitTimelineBody varbit={this.props.varbits[varbitIndex]} ticks={ticks} session={this.props.session} />
+          <VarbitTimelineBody updates={this.props.updates[varbitIndex]} ticks={ticks} session={this.props.session} />
           </div>
           )
         })
@@ -234,7 +236,6 @@ class VarbitTimelineBody extends Component {
   }
 
   componentDidUpdate() {
-    console.log('updated')
     if (this.flag)
     {
       this.refs.b.scrollLeft = this.refs.b.scrollWidth;
@@ -245,7 +246,7 @@ class VarbitTimelineBody extends Component {
   render() {
     let ticks = {};
     // For each update, add the update to the right tick
-    this.props.varbit.updates.forEach((update, index) => {
+    Object.values(this.props.updates).forEach((update, index) => {
       if (update.session === this.props.session)
       {
         if (ticks[update.tick] == null)

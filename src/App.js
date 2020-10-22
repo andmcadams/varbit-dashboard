@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import axios from 'axios';
 import { ScrollSync, ScrollSyncPane } from 'react-scroll-sync';
-import VarbitList from './components/VarbitList'
+import VarbitListPanel from './components/VarbitListPanel'
 
 function App() {
   console.log('App')
@@ -126,7 +126,7 @@ class VarbitDashboard extends Component {
       varbitMap: {},
       varbitUpdatesMap: {},
       selected: [],
-      session: e.target.value,
+      session: e.value,
       lastTick: -1
     })
   }
@@ -138,43 +138,6 @@ class VarbitDashboard extends Component {
       <div class="container">
       <VarbitListPanel {...this.state} handleToggleVarbit={this.handleToggleVarbit} handleSessionChange={this.handleSessionChange} />
       <VarbitTimelineContainer {...this.state} handleToggleVarbit={this.handleToggleVarbit} handleMoveVarbit={this.handleMoveVarbit} />
-      </div>
-    )
-  }
-}
-
-class VarbitListPanel extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showVarbitSelect: true,
-      sortByRecent: true
-    };
-
-    this.handleToggleVarbitList = this.handleToggleVarbitList.bind(this);
-    this.handleToggleSortByRecent = this.handleToggleSortByRecent.bind(this);
-  }
-
-  handleToggleVarbitList() {
-    this.setState({
-      showVarbitSelect: !this.state.showVarbitSelect
-    });
-  }
-
-  handleToggleSortByRecent() {
-    this.setState({
-      sortByRecent: !this.state.sortByRecent
-    })
-  }
-
-  render() {
-    let varbitList = <VarbitList {...this.props} showVarbitSelect={this.state.showVarbitSelect} sortByRecent={this.state.sortByRecent} />
-
-    return (
-      <div class='varbit-list-panel'>
-        <button onClick={this.handleToggleVarbitList}>I</button>
-        {varbitList}
       </div>
     )
   }

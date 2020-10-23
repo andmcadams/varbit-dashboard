@@ -1,0 +1,9 @@
+
+div.varbit-list-panel {
+  flex: 0 0 15%;
+  border: 1px;
+  border-color: black;
+  border-style: solid;
+  font-size: 0.8rem;
+  font-family: Arial, Helvetica, sans-serif;
+}

@@ -1,0 +1,13 @@
+
+div.varbit-list-header {
+  padding-left: 5%;
+  overflow: hidden;
+}
+
+#session-input {
+	max-width: 95%;
+}
+
+.varbit-list-header-list-element {
+	display: block;
+}

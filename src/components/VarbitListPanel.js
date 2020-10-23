@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import VarbitListBody from './VarbitListBody'
 import VarbitListHeader from './VarbitListHeader'
+import './VarbitListPanel.css'
 
 class VarbitListPanel extends Component {
   constructor(props) {
@@ -8,11 +9,11 @@ class VarbitListPanel extends Component {
 
     this.state = {
       showVarbitSelect: true,
-      sortByRecent: true
+      sortStyle: 'recent'
     };
 
     this.handleToggleVarbitList = this.handleToggleVarbitList.bind(this);
-    this.handleToggleSortByRecent = this.handleToggleSortByRecent.bind(this);
+    this.handleOrderChange = this.handleOrderChange.bind(this);
   }
 
   handleToggleVarbitList() {
@@ -21,19 +22,19 @@ class VarbitListPanel extends Component {
     });
   }
 
-  handleToggleSortByRecent() {
+  handleOrderChange(e) {
+    console.log(e.target.value)
     this.setState({
-      sortByRecent: !this.state.sortByRecent
+      sortStyle: e.target.value
     })
   }
 
   render() {
-    let varbitList = <VarbitListBody {...this.props} showVarbitSelect={this.state.showVarbitSelect} sortByRecent={this.state.sortByRecent} />
+    let varbitList = <VarbitListBody {...this.props} showVarbitSelect={this.state.showVarbitSelect} sortStyle={this.state.sortStyle} />
 
     return (
       <div class='varbit-list-panel'>
-        <button onClick={this.handleToggleVarbitList}>I</button>
-        <VarbitListHeader {...this.props} />
+        <VarbitListHeader {...this.props} sortStyle={this.state.sortStyle} handleToggleVarbitList={this.handleToggleVarbitList} handleOrderChange={this.handleOrderChange} />
         {varbitList}
       </div>
     )

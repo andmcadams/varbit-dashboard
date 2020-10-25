@@ -144,8 +144,8 @@ class VarbitCheckbox extends Component {
   render() {
     return (
       <li>
-        <div class='varbit-checkbox'>
-          <input type="checkbox" checked={this.props.value} onChange={(e) => {
+        <div class='varbit-select-list-element'>
+          <input type="checkbox" checked={this.props.value} class='varbit-select-list-element-checkbox' onChange={(e) => {
             this.props.handleToggleVarbit(this.props.index, e.target.checked)
           }} />
           <div class='varbit-index'>{this.props.index}</div>

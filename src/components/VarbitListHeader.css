@@ -28,7 +28,7 @@
 }
 
 .varbit-list-header-session-input-button-button {
-	flex: 0 1 content;
+	flex: 0 0 auto;
 	white-space: nowrap;
 	text-align: center;
 }

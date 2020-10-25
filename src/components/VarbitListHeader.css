@@ -1,5 +1,5 @@
 
-div.varbit-list-header {
+.varbit-list-header {
   padding-left: 5%;
   padding-bottom: 2.5%;
   padding-right: 2.5%;
@@ -7,7 +7,7 @@ div.varbit-list-header {
   background-color: #edf2fb;
 }
 
-div.session-name {
+.session-name {
 	margin: 0;
 	padding-top: 5%;
 	overflow: hidden;
@@ -15,13 +15,22 @@ div.session-name {
 	text-overflow: ellipsis;
 }
 
-div.varbit-list-header-session-input-button {
+.varbit-list-header-session-input-button {
 	padding-top: 2.5%;
+	overflow: hidden;
+	display: flex;
+	flex-wrap: nowrap;
 }
 
-#session-input {
-	max-width: 50%;
-	background-color: #c1d3fe;
+.session-input {
+	flex: 1 1 0;
+	width: 0%;
+}
+
+.varbit-list-header-session-input-button-button {
+	flex: 0 1 content;
+	white-space: nowrap;
+	text-align: center;
 }
 
 .varbit-list-header-session-input-button-button {

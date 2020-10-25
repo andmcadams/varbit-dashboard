@@ -28,7 +28,7 @@ class SessionInput extends Component {
       <div class="varbit-list-header-session-input">
         <div class="session-name">Session: {this.props.session || 'No session'}</div>
         <div class="varbit-list-header-session-input-button">
-          <input type="text" id="session-input" />
+          <input type="text" class="session-input" id="session-input" />
           <button class="varbit-list-header-session-input-button-button" onClick={() => {
             this.props.handleSessionChange(document.getElementById('session-input'))
           }}>Update session</button>

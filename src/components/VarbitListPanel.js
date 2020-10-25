@@ -34,7 +34,7 @@ class VarbitListPanel extends Component {
 
     return (
       <div class='varbit-list-panel'>
-        <VarbitListHeader {...this.props} sortStyle={this.state.sortStyle} handleToggleVarbitList={this.handleToggleVarbitList} handleOrderChange={this.handleOrderChange} />
+        <VarbitListHeader {...this.props} showVarbitSelect={this.state.showVarbitSelect} sortStyle={this.state.sortStyle} handleToggleVarbitList={this.handleToggleVarbitList} handleOrderChange={this.handleOrderChange} />
         {varbitList}
       </div>
     )

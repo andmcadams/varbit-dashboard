@@ -7,17 +7,32 @@ class VarbitListHeader extends Component {
   }
 
   render() {
-
+    let toggledState = 'visible'
+    if (this.props.showVarbitSelect)
+      toggledState = 'ignored'
     return (
       <div class="varbit-list-header">
-        <p>Session: {this.props.session || 'No session'}</p>
-        <input type="text" id="session-input" />
-        <button onClick={() => {
-          this.props.handleSessionChange(document.getElementById('session-input'))
-        }}>Update session</button>
-        <button onClick={this.props.handleToggleVarbitList}>I</button>
+        <SessionInput session={this.props.session} handleSessionChange={this.props.handleSessionChange} />
+        <button class="varbit-list-header-list-toggle" onClick={this.props.handleToggleVarbitList}>Show {toggledState}</button>
         <FilterList />
         <OrderList handleOrderChange={this.props.handleOrderChange} sortStyle={this.props.sortStyle} />
+      </div>
+    )
+  }
+}
+
+class SessionInput extends Component {
+
+  render() {
+    return (
+      <div class="varbit-list-header-session-input">
+        <div class="session-name">Session: {this.props.session || 'No session'}</div>
+        <div class="varbit-list-header-session-input-button">
+          <input type="text" id="session-input" />
+          <button class="varbit-list-header-session-input-button-button" onClick={() => {
+            this.props.handleSessionChange(document.getElementById('session-input'))
+          }}>Update session</button>
+        </div>
       </div>
     )
   }

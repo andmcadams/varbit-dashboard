@@ -1,13 +1,41 @@
 
 div.varbit-list-header {
   padding-left: 5%;
+  padding-bottom: 2.5%;
+  padding-right: 2.5%;
   overflow: hidden;
+  background-color: #edf2fb;
+}
+
+div.session-name {
+	margin: 0;
+	padding-top: 5%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+div.varbit-list-header-session-input-button {
+	padding-top: 2.5%;
 }
 
 #session-input {
-	max-width: 95%;
+	max-width: 50%;
+	background-color: #c1d3fe;
+}
+
+.varbit-list-header-session-input-button-button {
+	margin-left: 2.5%;
 }
 
 .varbit-list-header-list-element {
 	display: block;
+}
+
+button.varbit-list-header-list-toggle {
+	margin-top: 2.5%;
+}
+
+div.varbit-list-header-order-list {
+	padding-top: 2.5%;
 }

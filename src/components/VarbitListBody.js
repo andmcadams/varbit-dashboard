@@ -98,10 +98,13 @@ class VarbitIgnoreListElement extends Component {
   render() {
     return (
       <li>
-        <div class='varbit-ignore-list-element'>
+        <div class='varbit-list-element'>
+          <input type="checkbox" checked={this.props.value} class='varbit-list-element-checkbox' />
           <div class='varbit-index'>{this.props.index}</div><div class='varbit-name'>{this.props.name}</div>
-          <button class='varbit-ignore-list-element-remove-button' onClick={(e) => {
-            this.props.handleRemoveFromIgnore(this.props.index)}}>X</button>
+          <div class="varbit-button-div">
+            <button class='varbit-button' onClick={(e) => {
+              this.props.handleRemoveFromIgnore(this.props.index)}}>X</button>
+          </div>
         </div>
       </li>
     )
@@ -144,14 +147,14 @@ class VarbitCheckbox extends Component {
   render() {
     return (
       <li>
-        <div class='varbit-select-list-element'>
-          <input type="checkbox" checked={this.props.value} class='varbit-select-list-element-checkbox' onChange={(e) => {
+        <div class='varbit-list-element'>
+          <input type="checkbox" checked={this.props.value} class='varbit-list-element-checkbox' onChange={(e) => {
             this.props.handleToggleVarbit(this.props.index, e.target.checked)
           }} />
           <div class='varbit-index'>{this.props.index}</div>
           <div class='varbit-name'>{this.props.name}</div>
-          <div class='varbit-ignore-button-div'>
-            <button class='varbit-ignore-button' onClick={(e) => {
+          <div class='varbit-button-div'>
+            <button class='varbit-button' onClick={(e) => {
             this.props.handleAddToIgnore(this.props.index)}}>Hide</button>
           </div>
         </div>

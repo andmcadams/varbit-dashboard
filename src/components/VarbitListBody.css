@@ -1,25 +1,61 @@
 
-div.varbit-list-body {
+.varbit-list-body {
   border-top: 1px solid black;
   overflow-y: scroll;
   height: 100%;
-  padding-left: 5%;
+  padding-top: 2.5%;
+  background-color: #edf2fb;
+  width: 100%;
 }
 
 ul {
   padding: 0;
+  width: 100%;
 }
 
-div.varbit-checkbox {
+.varbit-list-element {
   display: flex;
+  justify-content: space-between;
+  padding-left: 5%;
+  padding-right: 2.5%;
 }
 
-div.varbit-index {
-  flex: 0 0 30%;
+.varbit-list-element:hover {
+  background-color: #c1d3fe;
 }
 
-div.varbit-name {
-  flex: 1;
+.varbit-list-element-checkbox {
+  flex: 0 0 0;
+  margin: auto;
+}
+
+.varbit-ignore-list .varbit-list-element-checkbox {
+  visibility: hidden;
+}
+
+.varbit-index {
+  flex: 0 0 10%;
+  display: inline;
+  margin: auto;
+  padding-left: 1%;
+}
+
+.varbit-name {
+  flex: 0 1 70%;
+  display: inline;
+  margin: auto;
+  padding-left: 15%;
+}
+
+.varbit-button-div {
+  flex: 0 0 20%;
+  display: flex;
+  margin: auto;
+}
+
+.varbit-button {
+  flex: 0 0 0;
+  margin-left: auto;
 }
 
 li {

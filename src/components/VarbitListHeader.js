@@ -2,9 +2,6 @@ import React, {Component} from 'react';
 import './VarbitListHeader.css'
 
 class VarbitListHeader extends Component {
-  constructor(props) {
-    super(props)
-  }
 
   render() {
     let toggledState = 'visible'
@@ -39,9 +36,6 @@ class SessionInput extends Component {
 }
 
 class FilterList extends Component {
-  constructor(props) {
-    super(props)
-  }
 
   render() {
     return (

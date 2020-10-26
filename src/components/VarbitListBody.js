@@ -83,7 +83,7 @@ class VarbitList extends Component {
               if (this.props.ignoredVarbits.includes(varbitIndex) === this.props.isIgnoreList)
               {
                 let varbit = this.props.varbitMap[varbitIndex];
-                return <VarbitListElement varbit={varbit} value={value} handleIgnoreOption={handleIgnoreOption} buttonText={buttonText} />;
+                return <VarbitListElement varbit={varbit} value={value} handleToggleVarbit={this.props.handleToggleVarbit} handleIgnoreOption={handleIgnoreOption} buttonText={buttonText} />;
               }
               else
                 return null;
@@ -102,7 +102,9 @@ class VarbitListElement extends Component {
     return (
       <li>
         <div class='varbit-list-element'>
-          <input type="checkbox" checked={this.props.value} class="varbit-list-element-checkbox" />
+          <input type="checkbox" checked={this.props.value} class='varbit-list-element-checkbox' onChange={(e) => {
+            this.props.handleToggleVarbit(varbit.index, e.target.checked)
+          }} />
           <div class='varbit-index'>{varbit.index}</div><div class='varbit-name'>{varbit.name}</div>
           <div class="varbit-button-div">
             <button class='varbit-button' onClick={(e) => {

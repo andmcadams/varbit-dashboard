@@ -1,6 +1,5 @@
 
 .varbit-list-panel {
-	flex: 1 5 content;
   border: 1px;
   border-color: black;
   border-style: solid;
@@ -8,7 +7,7 @@
   font-family: Arial, Helvetica, sans-serif;
   overflow: hidden;
   height: 100%;
-  max-width: 20%
+  flex: 0 0 15%
 }
 
 .varbit-list-panel input {

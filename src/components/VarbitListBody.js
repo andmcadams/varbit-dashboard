@@ -57,83 +57,59 @@ class VarbitListBody extends Component {
     else
       orderedVarbitList = Object.keys(this.props.varbitUpdatesMap)
 
-    let varbitList = null;
-    if (this.props.showVarbitSelect)
-      varbitList = <VarbitSelectList {...this.props} ignoredVarbits={this.state.ignoredVarbits} handleAddToIgnore={this.handleAddToIgnore} orderList={orderedVarbitList} />
-    else
-      varbitList = <VarbitIgnoreList {...this.props} ignoredVarbits={this.state.ignoredVarbits} handleRemoveFromIgnore={this.handleRemoveFromIgnore} orderList={orderedVarbitList} />
+    let isIgnoreList = !this.props.showVarbitSelect
+    let varbitList = <VarbitList {...this.props} isIgnoreList={isIgnoreList} ignoredVarbits={this.state.ignoredVarbits} handleRemoveFromIgnore={this.handleRemoveFromIgnore} handleAddToIgnore={this.handleAddToIgnore} orderList={orderedVarbitList} />
 
     return varbitList
   }
 }
 
-class VarbitIgnoreList extends Component {
-  constructor(props) {
-    super(props)
-  }
+class VarbitList extends Component {
 
   render() {
-    return (
-      <div class='varbit-list-body varbit-ignore-list'>
-      <ul>
-      {this.props.orderList.map((varbitIndex) => {
-        varbitIndex = parseInt(varbitIndex)
-        if (!this.props.ignoredVarbits.includes(varbitIndex))
-          return null;
-        let varbit = this.props.varbitMap[varbitIndex]
-        let name = varbit.name || ''
-        return <VarbitIgnoreListElement handleRemoveFromIgnore={this.props.handleRemoveFromIgnore} key={varbit.index} name={name} index={varbit.index} />
-      })}
-      </ul>
+    let listClass = this.props.isIgnoreList ? 'varbit-ignore-list' : 'varbit-select-list';
+    listClass += ' varbit-list-body'
+    return ( 
+      <div class={listClass}>
+        <ul>
+          {
+            this.props.orderList.map((varbitIndex) => {
+              
+              varbitIndex = parseInt(varbitIndex);
+              let value = this.props.selected.includes(varbitIndex);
+              let handleIgnoreOption = this.props.isIgnoreList ? this.props.handleRemoveFromIgnore : this.props.handleAddToIgnore;
+              let buttonText = this.props.isIgnoreList ? 'X' : 'Hide';
+
+              if (this.props.ignoredVarbits.includes(varbitIndex) === this.props.isIgnoreList)
+              {
+                let varbit = this.props.varbitMap[varbitIndex];
+                return <VarbitListElement varbit={varbit} value={value} handleIgnoreOption={handleIgnoreOption} buttonText={buttonText} />;
+              }
+              else
+                return null;
+            })
+          }
+        </ul>
       </div>
     )
   }
 }
 
-class VarbitIgnoreListElement extends Component {
-  constructor(props) {
-    super(props)
-  }
+class VarbitListElement extends Component {
 
   render() {
+    let varbit = this.props.varbit;
     return (
       <li>
         <div class='varbit-list-element'>
-          <input type="checkbox" checked={this.props.value} class='varbit-list-element-checkbox' />
-          <div class='varbit-index'>{this.props.index}</div><div class='varbit-name'>{this.props.name}</div>
+          <input type="checkbox" checked={this.props.value} class="varbit-list-element-checkbox" />
+          <div class='varbit-index'>{varbit.index}</div><div class='varbit-name'>{varbit.name}</div>
           <div class="varbit-button-div">
             <button class='varbit-button' onClick={(e) => {
-              this.props.handleRemoveFromIgnore(this.props.index)}}>X</button>
-          </div>
+              this.props.handleIgnoreOption(varbit.index)}}>{this.props.buttonText}</button>
+          </div>          
         </div>
       </li>
-    )
-  }
-}
-
-class VarbitSelectList extends Component {
-
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return (
-
-      <div class='varbit-list-body varbit-select-list'>
-      <ul>
-      {this.props.orderList.map((varbitIndex) => {
-        varbitIndex = parseInt(varbitIndex)
-        if(this.props.ignoredVarbits.includes(varbitIndex))
-          return null;
-        let varbit = this.props.varbitMap[varbitIndex]
-        console.log(this.props.varbitMap)
-        let name = varbit.name || ''
-        let isSelected = this.props.selected.includes(varbit.index)
-        return <VarbitCheckbox handleToggleVarbit={this.props.handleToggleVarbit} handleAddToIgnore={this.props.handleAddToIgnore} key={varbit.index} name={name} index={varbit.index} value={isSelected} />
-      })}
-      </ul>
-      </div>
     )
   }
 }

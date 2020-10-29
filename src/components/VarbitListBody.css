@@ -1,10 +1,9 @@
 
 .varbit-list-body {
   border-top: 1px solid black;
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 100%;
   padding-top: 2.5%;
-  background-color: #edf2fb;
   width: 100%;
 }
 

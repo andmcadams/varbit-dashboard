@@ -37,9 +37,10 @@
   }
 }
 
-html, body, div#root, div.container, div.varbitScrollBox, div.timeline-container {
+html, body, div#root, div.container {
   height: 100%;
-  width: 100%
+  width: 100%;
+  background-color: #E9ECEF;
 }
 
 .container {
@@ -101,12 +102,12 @@ div.timeline-body-cell-changed {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #ADB5BD;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #6C757D;
 }
 
 /* Handle on hover */

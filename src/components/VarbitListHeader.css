@@ -4,7 +4,6 @@
   padding-bottom: 2.5%;
   padding-right: 2.5%;
   overflow: hidden;
-  background-color: #edf2fb;
 }
 
 .session-name {
@@ -13,6 +12,10 @@
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
+}
+
+.varbit-list-header input {
+  background-color: #ADB5BD;
 }
 
 .varbit-list-header-session-input-button {
@@ -41,10 +44,10 @@
 	display: block;
 }
 
-button.varbit-list-header-list-toggle {
+.varbit-list-header-list-toggle {
 	margin-top: 2.5%;
 }
 
-div.varbit-list-header-order-list {
+.varbit-list-header-order-list {
 	padding-top: 2.5%;
 }
